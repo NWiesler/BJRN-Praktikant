@@ -36,4 +36,40 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * baut beziehung zu Role auf
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    /**
+     * Überprüft ob Nutzer benötigte Berechtigung hat
+    */
+    public function authorizeRoles($roles)
+    {
+        if (is_array($roles)){
+            return $this->hasRole($roles) ||
+            abort(401, 'This action is unauthorized');
+        }
+        return $this->hasRole($roles) ||
+        abort(401, 'This action is unauthorized');
+    }
+
+    /**
+     * überprüft mehrere Rollen
+     */
+    public function hasAnyRole($roles){
+        return null !== $this->roles()->whereIn($roles)->first();
+    }
+
+     /**
+     * überprüft eine Rolle
+     */
+    public function hasRole($roles){
+        return null !== $this->roles()->where($roles)->first();
+    }
+
 }
